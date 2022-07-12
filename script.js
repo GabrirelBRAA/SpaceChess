@@ -34,7 +34,7 @@ class Board{
         }
     }
 
-    checkMove(color, move_array, capture_array, position){
+    checkMove(color, move_array, capture_array, position,pawn_move=false){
 
         if (this.checkColor(position) == null){
             move_array.push(position);
@@ -55,23 +55,53 @@ class Board{
          let moves=[];
          let captures = [];
          let color;
-         if (tiles[index]==2){
+         let en_passant_index=false;
+         if (tiles[index]==1){
             color = 0;
-         } else if (tiles[index]==8) {
+         } else if (tiles[index]==7) {
             color = 1;
          } else {
             return null;
          }
          if (color==0){
             if (index-8 >= 0){
-                if ((this.checkMove(color, moves,captures, index-8)==1)){
-                    if (48<=index && index <= 55){
-                        this.checkMove(color, moves,captures,index-16)
+                if (this.checkColor(index-8)==null){
+                    moves.push(index-8);
+                    if (48<=index && index <= 55 && this.checkColor(index-16)==null){
+                        moves.push(index-16);
                     }
+                }
+                if ((index) % 8!=7 && this.checkColor(index-8+  1)==1){
+                    captures.push(index - 8+1);
+                }
+                if ((index) % 8 !=0 && this.checkColor(index -8 -1)==1){
+                    captures.push(index - 8 -1);
+                }
+                if (en_passant && (((index % 8 !=0) && index-1 ==en_passant) || ((index % 8 !=7) && index+1 ==en_passant)) ){
+                    en_passant_index=en_passant-8;
                 }
             }
          }
-    }
+        else if(color==1){
+            if (index+8 <= 63){
+                if (this.checkColor(index+8)==null){
+                    moves.push(index+8);
+                    if (8<=index && index <= 15 && this.checkColor(index+16)==null){
+                        moves.push(index+16);
+                    }
+                }
+                if ((index) % 8!=7 && this.checkColor(index+8+1)==0){
+                  captures.push(index + 8 +1);
+                }
+                if ((index) % 8 !=0 && this.checkColor(index +8 -1)==0){
+                    captures.push(index + 8 -1);
+                }
+                if (en_passant && (((index % 8 !=0) && index-1 ==en_passant) || ((index % 8 !=7) && index+1 ==en_passant)) ){
+                    en_passant_index=en_passant+8;
+                }}}
+        return [moves,captures,en_passant_index]
+        }
+
     
     movesRook(index){
          let tiles = this.tiles;
