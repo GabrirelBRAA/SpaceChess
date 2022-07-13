@@ -11,7 +11,7 @@ body {
     margin: 0;
 }
 
-#pawn {
+.main {
     animation-duration: 1s;
     animation-name: pawn_animation;
     display: block;   
