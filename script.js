@@ -103,14 +103,14 @@ class Board{
         }
 
     
-    movesRook(index){
+    movesRook(index, queen = false){
          let tiles = this.tiles;
          let moves=[];
          let captures = [];
          let color;
-         if (tiles[index]==2){
+         if (tiles[index]==2 || queen == 5){
             color = 0;
-         } else if (tiles[index]==8) {
+         } else if (tiles[index]==8 || queen == 11) {
             color = 1;
          } else {
             return null;
@@ -171,7 +171,7 @@ class Board{
         let color;
         if (tiles[index] == 3){
             color = 0;
-        } else if (tiles[color] == 9){
+        } else if (tiles[index] == 9){
             color = 1;
         } else {
             return null;
@@ -194,14 +194,14 @@ class Board{
         }
         return [moves,captures]
     }
-    movesBishop(index){
+    movesBishop(index,queen=false){
         let tiles = this.tiles;
         let moves = [];
         let captures = [];
         let color;
-        if (tiles[index] == 4){
+        if (tiles[index] == 4 || queen == 5 ){
             color = 0;
-        } else if (tiles[color] == 10){
+        } else if (tiles[index] == 10 || queen == 11){
             color = 1;
         } else {
             return null;
@@ -264,7 +264,29 @@ class Board{
         return [moves,captures]
     }    
     movesQueen(index){
-        console.log("Work in Progress")
+        let tiles = this.tiles;
+        let moves = [];
+        let captures = [];
+        let color;
+        if (tiles[index] == 5){
+            color = 0;
+        } else if (tiles[index] == 11){
+            color = 1;
+        } else {
+            return null;
+        }
+        if (color==0){
+            let rook = this.movesRook(index,5);
+            let bishop = this.movesBishop(index,5);
+            moves.push.apply(moves,rook[0]);moves.push.apply(moves,bishop[0]);
+            captures.push.apply(captures,rook[1]);captures.push.apply(captures,bishop[1]);
+        } else if (color == 1){
+            let rook = this.movesRook(index,11);
+            let bishop = this.movesBishop(index,11);
+            moves.push.apply(moves,rook[0]);moves.push.apply(moves,bishop[0]);
+            captures.push.apply(captures,rook[1]);captures.push.apply(captures,bishop[1]);
+        }
+        return [moves,captures]
     }
     movesKing(index){
         console.log("Work in Progress")
