@@ -397,3 +397,22 @@ class Board{
             return [moves, captures, "K"];
     }
 }
+
+function removePawn(){
+    let pawn=document.getElementById("pawn");
+    pawn.remove();
+
+    let main=document.getElementById("center_div");
+    let board = document.createElement("div")
+    board.setAttribute("class", "grid_container");
+    for (let i = 0; i < 64; ++i){
+        let n = document.createElement("div");
+        n.setAttribute("id","tile_" + i);
+        n.setAttribute("class", "grid_tile")
+        
+        board.appendChild(n)
+    }
+
+    document.getElementById("center_div").appendChild(board);
+
+}
