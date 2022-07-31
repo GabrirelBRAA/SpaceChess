@@ -13,8 +13,8 @@ body {
 
 .main {
     display: block;
-    margin-left: auto; 
-    margin-right: auto;  
+    margin-left: auto;
+    margin-right: auto;
 }
 .grid_container{
     animation: pawn_animation;

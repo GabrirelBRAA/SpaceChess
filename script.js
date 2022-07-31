@@ -396,12 +396,72 @@ class Board{
             }
             return [moves, captures, "K"];
     }
+    castleMoves(color,left=true, right=true){
+        let moves=[0,0]
+        let white_castle_right=[60,61,62,63];
+        let white_castle_left=[60,59,58,57,56];
+        let black_castle_right=[4,5,6,7];
+        let black_castle_left=[4,3,2,1,0];
+        let danger_tiles = this.checkDanger(color);
+        let tiles = this.tiles;
+        if (color==0){
+            let flag = 1
+            if (right && this.checkColor(61)==null && this.checkColor(62)==null){
+                for (let i = 0; i<4; ++i){
+                    if (danger_tiles.includes(white_castle_right[i])){
+                       flag = 0;
+                        break
+                    }
+                }
+                if (flag){
+                    moves[1]=1;
+                }
+        }   flag = 1;
+            if (left && this.checkColor(57)==null && this.checkColor(58)==null && this.checkColor(59)==null){
+                for (let i = 0; i<5; ++i){
+                    if (danger_tiles.includes(white_castle_left[i])){
+                        flag = 0;
+                        break
+                    }
+                }
+                if (flag){
+                    moves[0]=1;
+                }
+            
+        }}
+        else if (color==1){
+            let flag = 1
+            if (right && this.checkColor(5)==null && this.checkColor(6)==null){
+                for (let i = 0; i<4; ++i){
+                    if (danger_tiles.includes(black_castle_right[i])){
+                       flag = 0;
+                        break
+                    }
+                }
+                if (flag){
+                    moves[1]=1;
+                }
+        }   flag = 1;
+            if (left && this.checkColor(3)==null && this.checkColor(2)==null && this.checkColor(1)==null){
+                for (let i = 0; i<5; ++i){
+                    if (danger_tiles.includes(black_castle_left[i])){
+                        flag = 0;
+                        break
+                    }
+                }
+                if (flag){
+                    moves[0]=1;
+                }
+            
+        }
+        }
+        return moves;
+    }
 }
 
 function removePawn(){
     let pawn=document.getElementById("pawn");
     pawn.remove();
-
     let main=document.getElementById("center_div");
     let board = document.createElement("div")
     board.setAttribute("class", "grid_container");
