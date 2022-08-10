@@ -459,7 +459,7 @@ class Board{
     }
 }
 
-function removePawn(){
+function removePawn(){ //Deletes pawn image and starts the game
     let pawn=document.getElementById("pawn");
     pawn.remove();
     let main=document.getElementById("center_div");
@@ -468,11 +468,50 @@ function removePawn(){
     for (let i = 0; i < 64; ++i){
         let n = document.createElement("div");
         n.setAttribute("id","tile_" + i);
-        n.setAttribute("class", "grid_tile")
+        n.setAttribute("class", "grid_tile");
         
-        board.appendChild(n)
+        board.appendChild(n);
     }
-
     document.getElementById("center_div").appendChild(board);
 
+    document.getElementById("titulo").innerText="Space Chess";
+    chess_board = new Board();
+    chess_board.putPieces();
+    printPieces(chess_board);
+
 }
+
+function printPieces(board){
+    
+    for (let i = 0; i < 64; ++i){
+        let image = document.createElement("img");
+        if (board.tiles[i]==0){
+            continue;
+        }
+        else if (board.tiles[i]==1 || board.tiles[i]==7){
+            image.src = "images/pawn.png";
+        }
+        else if (board.tiles[i]==2 || board.tiles[i]==8){
+            image.src = "images/pawn.png";
+        }
+        else if (board.tiles[i]==3 || board.tiles[i]==9){
+            image.src = "images/knight.png";
+        }
+        else if (board.tiles[i]==4 || board.tiles[i]==10){
+            image.src = "images/bishop.png";
+        }
+        else if (board.tiles[i]==5 || board.tiles[i]==11){
+            image.src = "images/pawn.png";
+        }
+        else if (board.tiles[i]==6 || board.tiles[i]==12){
+            image.src = "images/king.png";
+        }
+        
+        image.setAttribute("class", "image")
+        let id = "tile_" + i;
+        let division = document.getElementById(id);
+        division.appendChild(image)
+    }
+}
+
+function gameAction(tile_){}
