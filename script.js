@@ -1,6 +1,12 @@
 class Board{
     constructor(){
         this.tiles= Array(64).fill(0)
+        this.action = false;
+        this.en_passant = false;
+        this.castle_right = true;
+        this.castle_left = true;
+        this.castle = [];
+        this.moves=[];
         
     }
     
@@ -457,6 +463,53 @@ class Board{
         }
         return moves;
     }
+    gameAction(index){ //Function that interacts with html to create the game loop
+        let tiles = this.tiles;
+        if (this.action){
+
+        } else {
+            if (tiles[index] == 1){
+                if (this.en_passant){
+                    this.moves=this.movesPawn(index, this.en_passant);
+                    highLight(index, this.moves, en_passant=true);
+                } else {
+                    this.moves=this.movesPawn(index);
+                    highLight(index, this.moves);
+                }
+            } else if (tiles[index] == 2){
+                this.moves=this.movesRook(index, this.en_passant);
+                highLight(index, this.moves);
+
+            } else if (tiles[index] == 3){
+                this.moves=this.movesKnight(index, this.en_passant);
+                highLight(index, this.moves);
+
+            } else if (tiles[index] == 4){
+                this.moves=this.movesBishop(index, this.en_passant);
+                highLight(index, this.moves);
+
+            } else if (tiles[index] == 5){
+                this.moves=this.movesQueen(index, this.en_passant);
+                highLight(index, this.moves);
+
+            } else if (tiles[index] == 6){
+                if (this.castle_left || this.castle_right){
+                    let castle_moves = this.castleMoves(0, left = this.castle_left, right = this.castle_right);
+                    this.moves = this.movesKing(index, this.en_passant);
+                    highLight(index, this.moves, castle = castle_moves);
+                } else {
+                this.moves=this.movesKing(index, this.en_passant);
+                highLight(index, this.moves);
+                }
+
+            } 
+        }
+
+    }
+}
+
+function highLight(index, moves_list, en_passant=false, castle=false){
+    console.log("funciona");
 }
 
 function removePawn(){ //Deletes pawn image and starts the game
@@ -465,10 +518,15 @@ function removePawn(){ //Deletes pawn image and starts the game
     let main=document.getElementById("center_div");
     let board = document.createElement("div")
     board.setAttribute("class", "grid_container");
+
+    chess_board = new Board();
+    chess_board.putPieces();
+
     for (let i = 0; i < 64; ++i){
         let n = document.createElement("div");
         n.setAttribute("id","tile_" + i);
         n.setAttribute("class", "grid_tile");
+        n.setAttribute("onclick", "chess_board.gameAction(" + i + ")")
         
         board.appendChild(n);
     }
@@ -514,4 +572,3 @@ function printPieces(board){
     }
 }
 
-function gameAction(tile_){}
