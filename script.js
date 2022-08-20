@@ -5,6 +5,7 @@ class Board{
         this.en_passant = false;
         this.castle_right = true;
         this.castle_left = true;
+        this.action_piece_index = false
         this.castle = [];
         this.moves=[];
         
@@ -266,7 +267,7 @@ class Board{
             return null;
         }
         for (let i = 0; i < 4; ++i){
-            if (i==0){
+            if (i==0 && !(index % 8 == 7)){
                 let a = 1; //Moves to the right
                 let b = 8; //Moves up
                 for(let n=1; n<8; ++n){
@@ -279,7 +280,7 @@ class Board{
                         break;
                     }
                 }
-            } else if( i==1 ){
+            } else if( i==1 && !(index % 8 == 0)){
                 let a = -1; //Moves to the left
                 let b = 8; //Moves up
                 for(let n=1; n<8; ++n){
@@ -292,7 +293,7 @@ class Board{
                         break;
                     }
                 }
-            } else if( i==2 ){
+            } else if( i==2 && !(index % 8 == 7)){
                 let a = 1; //Moves to the right
                 let b = -8; //Moves down
                 for(let n=1; n<8; ++n){
@@ -305,7 +306,7 @@ class Board{
                         break;
                     }
                 }
-            } else if ( i==3 ){
+            } else if ( i==3 && !(index % 8 == 0)){
                 let a = -1; //Moves to the left
                 let b = -8; //Moves down
                 for(let n=1; n<8; ++n){
@@ -361,7 +362,7 @@ class Board{
         } else {
             return null;
         }
-            if (index%8!==7){
+            if (index%8!==0){
                 this.checkMove(color,moves,captures,index-1);
                 if (index+8 <= 63){
                     this.checkMove(color,moves,captures,index+8-1);
@@ -370,7 +371,7 @@ class Board{
                     this.checkMove(color,moves,captures,index-8-1);
                 }
             }
-            if (index%8!==0){
+            if (index%8!==7){
                 this.checkMove(color,moves,captures,index+1);
                 if (index+8 <= 63){
                     this.checkMove(color,moves,captures,index+8+1);
@@ -466,9 +467,30 @@ class Board{
     gameAction(index){ //Function that interacts with html to create the game loop
         let tiles = this.tiles;
         if (this.action){
-
+            if (this.moves[0].includes(index) || this.moves[1].includes(index)){
+                let piece = tiles[this.action_piece_index];
+                tiles[this.action_piece_index] = 0;
+                tiles[index] = piece;
+                updateBoard(index, this.action_piece_index, piece);
+                disableHightlight();
+                this.moves=[]
+                this.action_piece_index=false
+                this.action = false
+            } else {
+                disableHightlight();
+                this.moves=[]
+                this.action_piece_index=false
+                this.action = false
+            }
         } else {
-            if (tiles[index] == 1){
+            this.action = true
+            this.action_piece_index = index
+            if (tiles[index] == 0){
+                this.action == false;
+                this.action_piece_index=false
+                this.action = false
+            }
+            else if (tiles[index] == 1){
                 if (this.en_passant){
                     this.moves=this.movesPawn(index, this.en_passant);
                     highLight(index, this.moves, en_passant=true);
@@ -477,26 +499,26 @@ class Board{
                     highLight(index, this.moves);
                 }
             } else if (tiles[index] == 2){
-                this.moves=this.movesRook(index, this.en_passant);
+                this.moves=this.movesRook(index);
                 highLight(index, this.moves);
 
             } else if (tiles[index] == 3){
-                this.moves=this.movesKnight(index, this.en_passant);
+                this.moves=this.movesKnight(index);
                 highLight(index, this.moves);
 
             } else if (tiles[index] == 4){
-                this.moves=this.movesBishop(index, this.en_passant);
+                this.moves=this.movesBishop(index);
                 highLight(index, this.moves);
 
             } else if (tiles[index] == 5){
-                this.moves=this.movesQueen(index, this.en_passant);
+                this.moves=this.movesQueen(index);
                 highLight(index, this.moves);
 
             } else if (tiles[index] == 6){
                 if (this.castle_left || this.castle_right){
-                    let castle_moves = this.castleMoves(0, left = this.castle_left, right = this.castle_right);
+                    let castle_moves = this.castleMoves(0,this.castle_left,this.castle_right);
                     this.moves = this.movesKing(index, this.en_passant);
-                    highLight(index, this.moves, castle = castle_moves);
+                    highLight(index, this.moves, false, castle_moves);
                 } else {
                 this.moves=this.movesKing(index, this.en_passant);
                 highLight(index, this.moves);
@@ -509,7 +531,73 @@ class Board{
 }
 
 function highLight(index, moves_list, en_passant=false, castle=false){
-    
+    let move = moves_list[0]
+    let capture = moves_list[1]
+    let id = "tile_" + index
+    document.getElementById(id).setAttribute("class","grid_tile_main")
+    for (let i = 0; i < move.length; ++i){
+        let id = "tile_" + move[i]
+        let tile = document.getElementById(id)
+        tile.setAttribute("class", "grid_tile_move")
+    } 
+    for (let i = 0; capture.length; ++i){
+        let id = "tile_" + capture[i]
+        let tile = document.getElementById(id)
+        tile.setAttribute("class", "grid_tile_capture")
+    }
+    //Still need to make it work for en-passant and castle
+}
+
+function disableHightlight(){
+    flag = false
+    for (let i = 0; i < 64; ++i){
+        let id = "tile_" + i
+        let tile = document.getElementById(id)
+        if (flag){
+            tile.setAttribute("class", "grid_tile_black")
+        } else {
+            tile.setAttribute("class", "grid_tile_white")
+        }
+        flag = !flag
+        if((i+1)%8 == 0){
+            flag = !flag
+        }
+    }
+}
+
+function updateBoard(index, action_piece_index, piece){
+    let image = document.createElement("img");
+    image.setAttribute("class", "image")
+    if (piece == 1){
+        image.src = "images/pawn.png";
+    }
+    else if (piece == 2){
+        image.src = "images/pawn.png";
+    }
+    else if (piece == 3){
+        image.src = "images/knight.png";
+    }
+    else if (piece == 4){
+        image.src = "images/bishop.png";
+    }
+    else if (piece == 5){
+        image.src = "images/pawn.png";
+    }
+    else if (piece == 6){
+        image.src = "images/king.png";
+    }
+
+    let id_1 = "tile_" + action_piece_index;
+    let original = document.getElementById(id_1);
+    original.removeChild(original.firstChild);
+
+    let id_2 = "tile_" + index
+    let destination = document.getElementById(id_2)
+    if (destination.firstChild){
+        destination.removeChild(destination.firstChild)
+    }
+    destination.appendChild(image)
+
 }
 
 function removePawn(){ //Deletes pawn image and starts the game
@@ -521,15 +609,23 @@ function removePawn(){ //Deletes pawn image and starts the game
 
     chess_board = new Board();
     chess_board.putPieces();
-
+    flag = false
     for (let i = 0; i < 64; ++i){
         let n = document.createElement("div");
         n.setAttribute("id","tile_" + i);
-        n.setAttribute("class", "grid_tile");
+        if (flag){
+        n.setAttribute("class", "grid_tile_black");
+    } else {
+        n.setAttribute("class", "grid_tile_white");
+    }
         n.setAttribute("onclick", "chess_board.gameAction(" + i + ")")
         
         board.appendChild(n);
-    }
+        flag = !flag
+        if ((i+1) % 8 == 0 && i !=0){
+            flag = !flag
+        }
+}
     document.getElementById("center_div").appendChild(board);
 
     document.getElementById("titulo").innerText="Space Chess";
