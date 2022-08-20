@@ -509,7 +509,7 @@ class Board{
 }
 
 function highLight(index, moves_list, en_passant=false, castle=false){
-    console.log("funciona");
+    
 }
 
 function removePawn(){ //Deletes pawn image and starts the game
