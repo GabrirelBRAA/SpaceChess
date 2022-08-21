@@ -6,7 +6,7 @@ class Board{
         this.castle_right = true;
         this.castle_left = true;
         this.action_piece_index = false
-        this.castle = [];
+        this.castle = false;
         this.moves=[];
         
     }
@@ -410,7 +410,6 @@ class Board{
         let black_castle_right=[4,5,6,7];
         let black_castle_left=[4,3,2,1,0];
         let danger_tiles = this.checkDanger(color);
-        let tiles = this.tiles;
         if (color==0){
             let flag = 1
             if (right && this.checkColor(61)==null && this.checkColor(62)==null){
@@ -467,20 +466,37 @@ class Board{
     gameAction(index){ //Function that interacts with html to create the game loop
         let tiles = this.tiles;
         if (this.action){
-            if (this.moves[0].includes(index) || this.moves[1].includes(index)){
+            if (this.moves[0].includes(index) || this.moves[1].includes(index) || (this.castle[0]==1 && index == 58) || (this.castle[1]==1 && index == 62)){
+                if (this.action_piece_index == 60){ //Moving the king makes castle unavailable
+                    this.castle_left = false
+                    this.castle_right = false
+                } else if (this.action_piece_index == 63){ // Likewise, moving one one of the rooks makes their respective castle side invalid
+                    this.castle_right = false
+                } else if (this.action_piece_index == 56){
+                    this.castle_left = false
+                }
+                if(this.castle[1] == 1 && index == 62){
+                    tiles[63] = 0
+                    tiles[61] = 2
+                } else if (this.castle[0] == 1 && index == 58){
+                    tiles[56] = 0
+                    tiles[59] = 2
+                }
                 let piece = tiles[this.action_piece_index];
                 tiles[this.action_piece_index] = 0;
                 tiles[index] = piece;
-                updateBoard(index, this.action_piece_index, piece);
+                updateBoard(index, this.action_piece_index, piece, this.castle);
                 disableHightlight();
                 this.moves=[]
                 this.action_piece_index=false
                 this.action = false
+                this.castle=false
             } else {
                 disableHightlight();
                 this.moves=[]
                 this.action_piece_index=false
                 this.action = false
+                this.castle=false
             }
         } else {
             this.action = true
@@ -489,6 +505,7 @@ class Board{
                 this.action == false;
                 this.action_piece_index=false
                 this.action = false
+                this.castle=false
             }
             else if (tiles[index] == 1){
                 if (this.en_passant){
@@ -516,9 +533,9 @@ class Board{
 
             } else if (tiles[index] == 6){
                 if (this.castle_left || this.castle_right){
-                    let castle_moves = this.castleMoves(0,this.castle_left,this.castle_right);
+                    this.castle = this.castleMoves(0,this.castle_left,this.castle_right);
                     this.moves = this.movesKing(index, this.en_passant);
-                    highLight(index, this.moves, false, castle_moves);
+                    highLight(index, this.moves, false, this.castle);
                 } else {
                 this.moves=this.movesKing(index, this.en_passant);
                 highLight(index, this.moves);
@@ -545,6 +562,14 @@ function highLight(index, moves_list, en_passant=false, castle=false){
         let tile = document.getElementById(id)
         tile.setAttribute("class", "grid_tile_capture")
     }
+    if (castle){
+        if(castle[1] == 1){
+            document.getElementById("tile_62").setAttribute("class", "grid_tile_move")
+        }
+        if (castle[0] == 1){
+            document.getElementById("tile_58").setAttribute("class", "grid_tile_move")
+        }
+    }
     //Still need to make it work for en-passant and castle
 }
 
@@ -565,7 +590,7 @@ function disableHightlight(){
     }
 }
 
-function updateBoard(index, action_piece_index, piece){
+function updateBoard(index, action_piece_index, piece, castle = false){
     let image = document.createElement("img");
     image.setAttribute("class", "image")
     if (piece == 1){
@@ -586,7 +611,22 @@ function updateBoard(index, action_piece_index, piece){
     else if (piece == 6){
         image.src = "images/king.png";
     }
-
+    if (castle){
+        if(castle[1]==1 && index == 62){
+            let original = document.getElementById("tile_60")
+            original.removeChild(original.firstChild);
+            let destination = document.getElementById("tile_62")
+            destination.appendChild(image)
+            updateBoard(61, 63, 2)
+            return
+        } else if(castle[0] == 1 && index == 58){
+            let original = document.getElementById("tile_60")
+            original.removeChild(original.firstChild);
+            let destination = document.getElementById("tile_58")
+            destination.appendChild(image)
+            updateBoard(59, 56, 2)
+            return
+    }}
     let id_1 = "tile_" + action_piece_index;
     let original = document.getElementById(id_1);
     original.removeChild(original.firstChild);
