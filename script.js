@@ -42,7 +42,7 @@ class Board{
     }
 
     checkMove(color, move_array, capture_array, position,pawn_move=false){
-        if (position <=0 || position >= 63){
+        if (position <0 || position > 63){
             return 0
         }
         if (this.checkColor(position) == null){
@@ -178,6 +178,9 @@ class Board{
                     let a = 1; // Goes to the right
                     for (let n = 1; n < 8; ++n){
                         let position = index+a*n
+                        if (index % 8 ==7){
+                            break;
+                        }
                         if (this.checkMove(color,moves, captures,position)==0){
                             break;
                         }
@@ -190,6 +193,9 @@ class Board{
 
                     for (let n = 1; n < 8; ++n){
                         let position = index+a*n
+                        if (index % 8 == 0){
+                            break;
+                        }
                         if (position>=0 && (this.checkMove(color,moves, captures, position)==0)){
                             break;
                         }
@@ -501,7 +507,7 @@ class Board{
         } else {
             this.action = true
             this.action_piece_index = index
-            if (tiles[index] == 0){
+            if (tiles[index] == 0 || this.checkColor(index) == 1){
                 this.action == false;
                 this.action_piece_index=false
                 this.action = false
@@ -557,7 +563,7 @@ function highLight(index, moves_list, en_passant=false, castle=false){
         let tile = document.getElementById(id)
         tile.setAttribute("class", "grid_tile_move")
     } 
-    for (let i = 0; capture.length; ++i){
+    for (let i = 0; i<capture.length; ++i){
         let id = "tile_" + capture[i]
         let tile = document.getElementById(id)
         tile.setAttribute("class", "grid_tile_capture")
